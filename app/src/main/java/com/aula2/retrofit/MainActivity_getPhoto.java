@@ -1,5 +1,6 @@
 package com.aula2.retrofit;
 
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,6 +12,7 @@ import android.util.Log;
 import com.aula2.retrofit.adapter.FotoAdapter;
 import com.aula2.retrofit.api.PhotoApi;
 import com.aula2.retrofit.model.Foto;
+import com.aula2.retrofit.model.Post;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +25,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity_getPhoto extends AppCompatActivity {
     private RecyclerView fotoRecyclerView;
-    private Retrofit retrofit;
+    private Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl("https://jsonplaceholder.typicode.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +36,8 @@ public class MainActivity_getPhoto extends AppCompatActivity {
         setContentView(R.layout.activity_main_get_photo);
 
         fotoRecyclerView = findViewById(R.id.fotoRecyclerView);
-        // Configurar o RecyclerView
         fotoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Chamar a API
         Intent intent = getIntent();
         if (intent.getBooleanExtra("byId", false)) {
             chamarApiRetrofitById();
@@ -44,11 +47,6 @@ public class MainActivity_getPhoto extends AppCompatActivity {
     }
 
     private void chamarApiRetrofit() {
-        // Configurar Retrofit
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://jsonplaceholder.typicode.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
         // Criar a chamada para a API
         PhotoApi photoApi = retrofit.create(PhotoApi.class);
@@ -75,11 +73,6 @@ public class MainActivity_getPhoto extends AppCompatActivity {
     }
 
     private void chamarApiRetrofitById() {
-        // Configurar Retrofit
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://jsonplaceholder.typicode.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
         // Criar a chamada para a API
         PhotoApi photoApi = retrofit.create(PhotoApi.class);
@@ -103,5 +96,46 @@ public class MainActivity_getPhoto extends AppCompatActivity {
                 Log.e("ERRO", t.getMessage());
             }
         });
+    }
+
+
+    private void updatePost() {
+        Post postAtualizado = new Post();
+        postAtualizado.setTitle("Título atualizado");
+        postAtualizado.setBody("Conteúdo atualizado");
+        postAtualizado.setUserId(1);
+
+        PhotoApi photoApi = retrofit.create(PhotoApi.class);
+        Call<Post> call = photoApi.updatePost(1, postAtualizado);
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+                if (response.isSuccessful()) {
+                    Post post = response.body();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
+            }
+        });
+
+    }
+
+    public void deletePost() {
+        PhotoApi photoApi = retrofit.create(PhotoApi.class);
+        Call<Void> call = photoApi.deletePost(1);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+            }
+        });
+
     }
 }
